@@ -145,12 +145,10 @@ function HomeView({ onArticleSelect }: { onArticleSelect: (id: string) => void }
         <div className="max-w-xl text-center md:text-left">
           <div className="w-12 h-1 bg-stone-800 mb-10 mx-auto md:mx-0"></div>
           <h1 className="text-4xl md:text-6xl font-serif text-stone-100 mb-8 tracking-wider leading-tight">
-            Digital<br/>Artisan.
+            Linyu Miao
           </h1>
-          <p className="text-xl text-stone-400 font-light leading-relaxed font-serif">
-            I weave code and prose into tapestries of thought. 
-            My work explores the silent spaces between technology and humanity, seeking beauty 
-            in the ephemeral and structure in the void.
+          <p className="text-lg text-stone-400 font-light leading-relaxed">
+            Linyu Miao graduated from Barnard College of Columbia University with a Bachelor of Arts in Comparative Literature. Linyu is an independent media writer, the founder of Let Summer Be, a rural education organization, and the editor-in-chief of RyeWave, an independent literary magazine. Her work has appeared on major Chinese journalism platforms, including T Magazine China (T中文版), The Paper (澎湃新闻), People Magazine (人物), among others.
           </p>
           <p className="mt-12 text-xs font-mono text-stone-600 uppercase tracking-widest opacity-60">
             Select a piece to read →
@@ -160,7 +158,7 @@ function HomeView({ onArticleSelect }: { onArticleSelect: (id: string) => void }
 
       {/* Right Pane: Article List */}
       <div className="w-full md:w-1/2 flex flex-col border-t md:border-t-0 bg-stone-950">
-        {ARTICLES.map((article) => (
+        {ARTICLES.slice(0, 4).map((article) => (
           <div 
             key={article.id}
             onClick={() => onArticleSelect(article.id)}
@@ -184,7 +182,15 @@ function HomeView({ onArticleSelect }: { onArticleSelect: (id: string) => void }
             {/* Content */}
             <div className="relative z-10 p-8 text-center max-w-lg transform transition-all duration-500 group-hover:-translate-y-2">
               <h2 className="text-xl md:text-3xl font-serif text-stone-100 tracking-wide group-hover:text-white transition-colors">
-                {article.title}
+                {article.title.includes('Everything Everywhere All at Once') ? (
+                  <>
+                    {article.title.split('Everything Everywhere All at Once')[0]}
+                    <em>Everything Everywhere All at Once</em>
+                    {article.title.split('Everything Everywhere All at Once')[1]}
+                  </>
+                ) : (
+                  article.title
+                )}
               </h2>
               {article.subtitle && (
                 <p className="mt-3 text-sm md:text-base text-stone-400 font-light tracking-wide group-hover:text-stone-300 transition-colors">
@@ -196,7 +202,7 @@ function HomeView({ onArticleSelect }: { onArticleSelect: (id: string) => void }
         ))}
         
         <footer className="py-24 text-center text-stone-600 text-xs uppercase tracking-widest bg-stone-950">
-          <p>&copy; 2024 Ethereal Portfolio.</p>
+          <p>&copy; 2026 Linyu's Portfolio.</p>
         </footer>
       </div>
     </main>
@@ -220,7 +226,15 @@ function ArticleView({ article, onBack }: { article: Article; onBack: () => void
         <div className="w-full max-w-3xl px-6 md:px-12 py-24 md:py-32">
           <header className="mb-16 text-center">
             <h1 className="text-4xl md:text-6xl font-serif text-white leading-tight mb-4">
-              {article.title}
+              {article.title.includes('Everything Everywhere All at Once') ? (
+                <>
+                  {article.title.split('Everything Everywhere All at Once')[0]}
+                  <em>Everything Everywhere All at Once</em>
+                  {article.title.split('Everything Everywhere All at Once')[1]}
+                </>
+              ) : (
+                article.title
+              )}
             </h1>
             {article.subtitle && (
               <p className="text-xl md:text-2xl text-stone-400 font-light tracking-wide mb-8">
@@ -230,15 +244,58 @@ function ArticleView({ article, onBack }: { article: Article; onBack: () => void
           </header>
           
           <article className="prose prose-invert prose-lg prose-stone font-light leading-relaxed mx-auto">
-            {article.content.map((paragraph, idx) => (
-              <p key={idx} className="mb-8 first-letter:text-3xl first-letter:font-serif first-letter:mr-1 text-stone-300">
-                {paragraph}
-              </p>
-            ))}
+            {article.content.map((paragraph, idx) => {
+              const isLastParagraph = idx === article.content.length - 1;
+              const isItalicNote = isLastParagraph && paragraph.includes("At the interviewee's request");
+
+              return (
+                <p
+                  key={idx}
+                  className={`mb-8 text-stone-300 ${isItalicNote ? 'italic' : 'first-letter:text-3xl first-letter:font-serif first-letter:mr-1'}`}
+                >
+                  {paragraph}
+                </p>
+              );
+            })}
           </article>
 
-          <div className="mt-24 pt-12 border-t border-white/10 text-center">
-            <button 
+          {article.metadata && (
+            <div className="mt-16 pt-8 border-t border-white/10">
+              <div className="text-xs text-stone-500 space-y-2">
+                {article.metadata.note && (
+                  <p className="italic">{article.metadata.note}</p>
+                )}
+                {article.metadata.originalLink && (
+                  <p>
+                    Original link:{' '}
+                    <a
+                      href={article.metadata.originalLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-stone-400 hover:text-stone-300 underline transition-colors"
+                    >
+                      {article.metadata.originalLink}
+                    </a>
+                  </p>
+                )}
+                {article.metadata.platform && (
+                  <p>Platform: {article.metadata.platform}</p>
+                )}
+                {article.metadata.author && (
+                  <p>Author: {article.metadata.author}</p>
+                )}
+                {article.metadata.editor && (
+                  <p>Editor: {article.metadata.editor}</p>
+                )}
+                {article.metadata.publicationDate && (
+                  <p>Publication date: {article.metadata.publicationDate}</p>
+                )}
+              </div>
+            </div>
+          )}
+
+          <div className="mt-16 pt-8 border-t border-white/10 text-center">
+            <button
               onClick={onBack}
               className="text-xs uppercase tracking-[0.2em] text-stone-500 hover:text-white transition-colors"
             >

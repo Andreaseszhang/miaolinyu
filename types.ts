@@ -8,4 +8,12 @@ export interface Article {
   readTime: string;
   imageIds: number[]; // IDs for picsum images
   tags: string[];
+  metadata?: {
+    note?: string;
+    originalLink?: string;
+    platform?: string;
+    author?: string;
+    editor?: string;
+    publicationDate?: string;
+  };
 }
