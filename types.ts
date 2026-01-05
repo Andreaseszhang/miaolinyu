@@ -1,6 +1,7 @@
 export interface Article {
   id: string;
   title: string;
+  subtitle?: string; // Optional subtitle for articles
   excerpt: string;
   content: string[]; // Array of paragraphs
   date: string;

@@ -186,6 +186,11 @@ function HomeView({ onArticleSelect }: { onArticleSelect: (id: string) => void }
               <h2 className="text-xl md:text-3xl font-serif text-stone-100 tracking-wide group-hover:text-white transition-colors">
                 {article.title}
               </h2>
+              {article.subtitle && (
+                <p className="mt-3 text-sm md:text-base text-stone-400 font-light tracking-wide group-hover:text-stone-300 transition-colors">
+                  {article.subtitle}
+                </p>
+              )}
             </div>
           </div>
         ))}
@@ -214,9 +219,14 @@ function ArticleView({ article, onBack }: { article: Article; onBack: () => void
       <div className="w-full min-h-screen flex flex-col items-center">
         <div className="w-full max-w-3xl px-6 md:px-12 py-24 md:py-32">
           <header className="mb-16 text-center">
-            <h1 className="text-4xl md:text-6xl font-serif text-white leading-tight mb-8">
+            <h1 className="text-4xl md:text-6xl font-serif text-white leading-tight mb-4">
               {article.title}
             </h1>
+            {article.subtitle && (
+              <p className="text-xl md:text-2xl text-stone-400 font-light tracking-wide mb-8">
+                {article.subtitle}
+              </p>
+            )}
           </header>
           
           <article className="prose prose-invert prose-lg prose-stone font-light leading-relaxed mx-auto">
