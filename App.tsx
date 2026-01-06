@@ -1,6 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { ARTICLES } from './data';
-import { Article } from './types';
+import React, { useState, useEffect, useRef } from "react";
+import { ARTICLES } from "./data";
+import { Article } from "./types";
+
+// Simple Markdown parser for bold and italic text
+function parseMarkdown(text: string): string {
+  return (
+    text
+      // Remove escaped quotes
+      .replace(/\\"/g, '"')
+      // Bold + Italic (***text***)
+      .replace(/\*\*\*(.+?)\*\*\*/g, "<strong><em>$1</em></strong>")
+      // Bold (**text**)
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      // Italic (*text*)
+      .replace(/\*(.+?)\*/g, "<em>$1</em>")
+  );
+}
 
 export default function App() {
   const [activeArticleId, setActiveArticleId] = useState<string | null>(null);
@@ -28,7 +43,11 @@ export default function App() {
   return (
     <>
       <SnowEffect />
-      <div className={`min-h-screen transition-opacity duration-500 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+      <div
+        className={`min-h-screen transition-opacity duration-500 ${
+          isTransitioning ? "opacity-0" : "opacity-100"
+        }`}
+      >
         {!activeArticle ? (
           <HomeView onArticleSelect={handleArticleClick} />
         ) : (
@@ -45,21 +64,21 @@ function SnowEffect() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     let width = window.innerWidth;
     let height = window.innerHeight;
-    
+
     const setSize = () => {
       width = window.innerWidth;
       height = window.innerHeight;
       canvas.width = width;
       canvas.height = height;
     };
-    
+
     setSize();
-    window.addEventListener('resize', setSize);
+    window.addEventListener("resize", setSize);
 
     // Particle configuration
     const particleCount = 70;
@@ -81,7 +100,7 @@ function SnowEffect() {
         speedY: Math.random() * 0.5 + 0.2, // Slow falling speed
         speedX: Math.random() * 0.2 - 0.1, // Slight drift
         opacity: Math.random() * 0.5 + 0.1,
-        sway: Math.random() * Math.PI * 2 // Random starting phase for sway
+        sway: Math.random() * Math.PI * 2, // Random starting phase for sway
       });
     }
 
@@ -103,7 +122,7 @@ function SnowEffect() {
           p.y = -10;
           p.x = Math.random() * width;
         }
-        
+
         // Wrap around sides
         if (p.x > width) p.x = 0;
         if (p.x < 0) p.x = width;
@@ -121,20 +140,24 @@ function SnowEffect() {
     render();
 
     return () => {
-      window.removeEventListener('resize', setSize);
+      window.removeEventListener("resize", setSize);
       cancelAnimationFrame(animationFrameId);
     };
   }, []);
 
   return (
-    <canvas 
-      ref={canvasRef} 
+    <canvas
+      ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-50 mix-blend-screen"
     />
   );
 }
 
-function HomeView({ onArticleSelect }: { onArticleSelect: (id: string) => void }) {
+function HomeView({
+  onArticleSelect,
+}: {
+  onArticleSelect: (id: string) => void;
+}) {
   return (
     <main className="flex flex-col md:flex-row min-h-screen bg-stone-950">
       {/* Left Pane: Introduction 
@@ -148,7 +171,13 @@ function HomeView({ onArticleSelect }: { onArticleSelect: (id: string) => void }
             Linyu Miao
           </h1>
           <p className="text-lg text-stone-400 font-light leading-relaxed">
-            Linyu Miao graduated from Barnard College of Columbia University with a Bachelor of Arts in Comparative Literature. Linyu is an independent media writer, the founder of Let Summer Be, a rural education organization, and the editor-in-chief of RyeWave, an independent literary magazine. Her work has appeared on major Chinese journalism platforms, including T Magazine China (T中文版), The Paper (澎湃新闻), People Magazine (人物), among others.
+            Linyu Miao graduated from Barnard College of Columbia University
+            with a Bachelor of Arts in Comparative Literature. Linyu is an
+            independent media writer, the founder of Let Summer Be, a rural
+            education organization, and the editor-in-chief of RyeWave, an
+            independent literary magazine. Her work has appeared on major
+            Chinese journalism platforms, including T Magazine China (T 中文版),
+            The Paper (澎湃新闻), People Magazine (人物), among others.
           </p>
           <p className="mt-12 text-xs font-mono text-stone-600 uppercase tracking-widest opacity-60">
             Select a piece to read →
@@ -158,35 +187,51 @@ function HomeView({ onArticleSelect }: { onArticleSelect: (id: string) => void }
 
       {/* Right Pane: Article List */}
       <div className="w-full md:w-1/2 flex flex-col border-t md:border-t-0 bg-stone-950">
-        {ARTICLES.slice(0, 4).map((article) => (
-          <div 
+        {ARTICLES.slice(0, 6).map((article) => (
+          <div
             key={article.id}
             onClick={() => onArticleSelect(article.id)}
             className="group relative h-[33.33vh] w-full flex items-center justify-center overflow-hidden cursor-pointer border-b border-white/5 last:border-b-0"
           >
             {/* Background Image with Blur and Grayscale */}
-            <div 
+            <div
               className="absolute inset-0 bg-cover bg-center transition-all duration-1000 group-hover:scale-105 grayscale group-hover:grayscale-0"
-              style={{ backgroundImage: `url(https://picsum.photos/id/${article.imageIds[0]}/1920/1080)` }}
+              style={{
+                backgroundImage: `url(${
+                  article.customImages
+                    ? article.customImages[0]
+                    : `https://picsum.photos/id/${
+                        article.imageIds![0]
+                      }/1920/1080`
+                })`,
+              }}
             />
-            
+
             {/* Dark Overlay for Readability */}
             <div className="absolute inset-0 bg-stone-950/70 transition-colors duration-500 group-hover:bg-stone-950/50" />
-            
+
             {/* Shimmer Effect Overlay */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 animate-shimmer pointer-events-none" />
-            
+
             {/* Vague Blur Layer - Starts blurry, clears up slightly on hover */}
             <div className="absolute inset-0 backdrop-blur-[2px] group-hover:backdrop-blur-[0px] transition-all duration-700" />
 
             {/* Content */}
             <div className="relative z-10 p-8 text-center max-w-lg transform transition-all duration-500 group-hover:-translate-y-2">
               <h2 className="text-xl md:text-3xl font-serif text-stone-100 tracking-wide group-hover:text-white transition-colors">
-                {article.title.includes('Everything Everywhere All at Once') ? (
+                {article.title.includes("Everything Everywhere All at Once") ? (
                   <>
-                    {article.title.split('Everything Everywhere All at Once')[0]}
+                    {
+                      article.title.split(
+                        "Everything Everywhere All at Once"
+                      )[0]
+                    }
                     <em>Everything Everywhere All at Once</em>
-                    {article.title.split('Everything Everywhere All at Once')[1]}
+                    {
+                      article.title.split(
+                        "Everything Everywhere All at Once"
+                      )[1]
+                    }
                   </>
                 ) : (
                   article.title
@@ -200,7 +245,7 @@ function HomeView({ onArticleSelect }: { onArticleSelect: (id: string) => void }
             </div>
           </div>
         ))}
-        
+
         <footer className="py-24 text-center text-stone-600 text-xs uppercase tracking-widest bg-stone-950">
           <p>&copy; 2026 Linyu's Portfolio.</p>
         </footer>
@@ -209,15 +254,23 @@ function HomeView({ onArticleSelect }: { onArticleSelect: (id: string) => void }
   );
 }
 
-function ArticleView({ article, onBack }: { article: Article; onBack: () => void }) {
+function ArticleView({
+  article,
+  onBack,
+}: {
+  article: Article;
+  onBack: () => void;
+}) {
   return (
     <div className="min-h-screen bg-black">
       {/* Navigation - Fixed back button */}
-      <button 
+      <button
         onClick={onBack}
         className="fixed top-8 left-8 z-50 text-stone-500 hover:text-white transition-colors flex items-center gap-2 group mix-blend-difference"
       >
-        <span className="transform transition-transform group-hover:-translate-x-1">←</span>
+        <span className="transform transition-transform group-hover:-translate-x-1">
+          ←
+        </span>
         <span className="text-sm uppercase tracking-widest">Back</span>
       </button>
 
@@ -226,11 +279,11 @@ function ArticleView({ article, onBack }: { article: Article; onBack: () => void
         <div className="w-full max-w-3xl px-6 md:px-12 py-24 md:py-32">
           <header className="mb-16 text-center">
             <h1 className="text-4xl md:text-6xl font-serif text-white leading-tight mb-4">
-              {article.title.includes('Everything Everywhere All at Once') ? (
+              {article.title.includes("Everything Everywhere All at Once") ? (
                 <>
-                  {article.title.split('Everything Everywhere All at Once')[0]}
+                  {article.title.split("Everything Everywhere All at Once")[0]}
                   <em>Everything Everywhere All at Once</em>
-                  {article.title.split('Everything Everywhere All at Once')[1]}
+                  {article.title.split("Everything Everywhere All at Once")[1]}
                 </>
               ) : (
                 article.title
@@ -242,19 +295,72 @@ function ArticleView({ article, onBack }: { article: Article; onBack: () => void
               </p>
             )}
           </header>
-          
+
           <article className="prose prose-invert prose-lg prose-stone font-light leading-relaxed mx-auto">
             {article.content.map((paragraph, idx) => {
               const isLastParagraph = idx === article.content.length - 1;
-              const isItalicNote = isLastParagraph && paragraph.includes("At the interviewee's request");
+              const isItalicNote =
+                isLastParagraph &&
+                paragraph.includes("At the interviewee's request");
+
+              // Check if this is a dialogue paragraph (starts with **Name:**)
+              const isDialogue = paragraph.match(/^\*\*(.+?):\*\*/);
+
+              // For Article 6, check if we're past the intro (after "roundtable discussion")
+              const isArticle6 = article.id === '6';
+              const isIntroSection = isArticle6 && idx <= 5; // First 6 paragraphs are intro
+
+              if (isDialogue && !isIntroSection) {
+                const speakerName = isDialogue[1];
+                const content = paragraph.replace(/^\*\*(.+?):\*\*\s*/, '');
+
+                // Check if previous paragraph was from the same speaker
+                const prevParagraph = idx > 0 ? article.content[idx - 1] : null;
+                const prevDialogue = prevParagraph ? prevParagraph.match(/^\*\*(.+?):\*\*/):  null;
+                const wasSameSpeakerPrev = prevDialogue && prevDialogue[1] === speakerName;
+
+                // Normalize speaker name for consistent positioning
+                // Extract first name mentioned (handles "A & B" cases)
+                const primarySpeaker = speakerName.split('&')[0].trim();
+
+                // Alternate alignment based on speaker
+                // Simple hash to determine left/right
+                const speakerHash = primarySpeaker.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+                const isLeft = speakerHash % 2 === 0;
+
+                return (
+                  <div
+                    key={idx}
+                    className={`${wasSameSpeakerPrev ? 'mb-4' : 'mb-12'} ${isLeft ? 'mr-auto pr-[15%]' : 'ml-auto pl-[15%]'} max-w-[85%]`}
+                  >
+                    {!wasSameSpeakerPrev && (
+                      <div className="mb-2 text-left">
+                        <strong className="text-white text-lg">{speakerName}:</strong>
+                      </div>
+                    )}
+                    <p
+                      className="text-stone-300 text-left"
+                      dangerouslySetInnerHTML={{ __html: parseMarkdown(content) }}
+                    />
+                  </div>
+                );
+              }
+
+              // For intro section, disable first-letter styling after first paragraph
+              const isIntroFirstPara = isIntroSection && idx === 0;
 
               return (
                 <p
                   key={idx}
-                  className={`mb-8 text-stone-300 ${isItalicNote ? 'italic' : 'first-letter:text-3xl first-letter:font-serif first-letter:mr-1'}`}
-                >
-                  {paragraph}
-                </p>
+                  className={`mb-8 text-stone-300 ${
+                    isItalicNote
+                      ? "italic"
+                      : isIntroFirstPara
+                      ? "first-letter:text-3xl first-letter:font-serif first-letter:mr-1"
+                      : ""
+                  }`}
+                  dangerouslySetInnerHTML={{ __html: parseMarkdown(paragraph) }}
+                />
               );
             })}
           </article>
@@ -267,7 +373,7 @@ function ArticleView({ article, onBack }: { article: Article; onBack: () => void
                 )}
                 {article.metadata.originalLink && (
                   <p>
-                    Original link:{' '}
+                    Original link:{" "}
                     <a
                       href={article.metadata.originalLink}
                       target="_blank"

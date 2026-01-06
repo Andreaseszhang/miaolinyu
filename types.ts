@@ -6,7 +6,8 @@ export interface Article {
   content: string[]; // Array of paragraphs
   date: string;
   readTime: string;
-  imageIds: number[]; // IDs for picsum images
+  imageIds?: number[]; // IDs for picsum images (optional)
+  customImages?: string[]; // Custom image URLs (optional)
   tags: string[];
   metadata?: {
     note?: string;
